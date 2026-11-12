@@ -9,28 +9,32 @@ main{padding:32px;max-width:1200px;margin:auto}
 h1{font-size:28px;line-height:36px;letter-spacing:-.5px;margin:0 0 8px}
 .label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.2px;color:var(--ft-fg-2);margin:0 0 8px}
 .intro{color:var(--ft-fg-2);margin:0 0 24px;line-height:1.5;max-width:760px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));grid-auto-flow:row dense;gap:24px}
-.card{perspective:1600px;height:380px;transition:height .35s ease}
-.card.flipped{grid-column:1/-1}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px}
+.card{perspective:1200px;height:380px}
 .inner{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
 .card.flipped .inner{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--ft-surface-base);border:1px solid var(--ft-border-base);border-radius:8px;padding:24px;display:flex;flex-direction:column;box-shadow:var(--ft-shadow-card)}
 .front{cursor:pointer;overflow:auto}
 .front:focus-visible,.btn:focus-visible,.filters button:focus-visible{outline:2px solid var(--ft-border-focus);outline-offset:3px}
-.back{transform:rotateY(180deg);overflow:auto;padding:32px}
+.back{transform:rotateY(180deg);overflow:hidden;cursor:pointer}
 .tag{align-self:flex-start;font-size:12px;font-weight:700;border-radius:4px;padding:2px 8px;background:var(--ft-color-primary-lightest);color:#2c2c2c;margin-bottom:16px}
 .tag.proposed{background:var(--ft-color-secondary-lightest)}
 .face h2{font-size:20px;line-height:26px;margin:0 0 12px}
 .face p{margin:0 0 12px;color:var(--ft-fg-2);line-height:1.5}
 .meta{font-size:13px;color:var(--ft-fg-2)}
 .hint{margin-top:auto;font-size:13px;font-weight:700;color:var(--ft-link-base)}
-.back-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
-.back-head h2{margin:0}
-.back h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.2px;margin:20px 0 8px;color:var(--ft-fg-1)}
-.back ol{margin:0;padding-left:20px;line-height:1.5;max-width:860px}
-.back li{margin-bottom:6px}
+.back h3,.panel h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.2px;margin:16px 0 8px;color:var(--ft-fg-1)}
+.back h2{font-size:18px;line-height:24px;margin:0 0 4px}
+.back h3{margin:12px 0 6px}
+.panel ol{margin:0;padding-left:20px;line-height:1.5;max-width:860px}
+.panel li{margin-bottom:6px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font-size:12px;border:1px solid var(--ft-border-base);border-radius:4px;padding:2px 8px;color:var(--ft-fg-1)}
+.preview{position:relative;flex:1 1 auto;min-height:40px;overflow:hidden;font-family:var(--ft-font-family-code);font-size:12px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ft-fg-2);background:var(--ft-surface-tertiary);border:1px solid var(--ft-border-base);border-radius:8px;padding:8px 12px;margin:0}
+.back .actions{margin-top:12px}
+.back-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.btn.sm{font-size:13px;padding:4px 10px;flex:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .instr-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 8px}
 .instr-head h3{margin:0}
 .prompt{font-family:var(--ft-font-family-code);font-size:13px;line-height:1.55;background:var(--ft-surface-tertiary);border:1px solid var(--ft-border-base);border-radius:8px;padding:16px;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ft-fg-1);cursor:text;user-select:text;-webkit-user-select:text}
@@ -45,18 +49,27 @@ h1{font-size:28px;line-height:36px;letter-spacing:-.5px;margin:0 0 8px}
 .filters button[aria-pressed="true"]{background:var(--ft-color-primary-base);border-color:var(--ft-color-primary-base);color:#2c2c2c}
 h2.sec{font-size:20px;line-height:24px;margin:8px 0 16px}
 section+section{margin-top:40px}
-@media(max-width:600px){main{padding:16px}.page-header{padding:0 16px}.card{height:420px}.back{padding:20px}}
-@media(prefers-reduced-motion:reduce){.inner,.card{transition:none}}
+dialog.panel{width:min(920px,calc(100vw - 32px));max-height:calc(100vh - 48px);padding:0;border:1px solid var(--ft-border-base);border-radius:16px;background:var(--ft-surface-base);color:var(--ft-fg-1);box-shadow:var(--ft-shadow-modal)}
+dialog.panel::backdrop{background:var(--ft-overlay-base)}
+.panel-head{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 32px;background:var(--ft-surface-base);border-bottom:1px solid var(--ft-border-base)}
+.panel-head h2{font-size:20px;line-height:26px;margin:0}
+.panel-body{padding:8px 32px 32px}
+@media(max-width:600px){main{padding:16px}.page-header{padding:0 16px}.card{height:420px}.panel-head{padding:16px}.panel-body{padding:4px 16px 24px}}
+@media(prefers-reduced-motion:reduce){.inner{transition:none}}
 </style></head><body>
 <header class="page-header"><img src="fasttrack-logo.svg" alt="Fast Track"><strong>AI Agents and Prompts</strong></header>
 <main>
 <p class="label">Partner Success</p>
 <h1>My AI Agents</h1>
-<p class="intro">Click a card to flip it. The back opens to full width with the setup steps and the full agent instructions, which you can copy and paste into a new agent. Taken from the AI Strategy slides; the steps and instructions are suggested starting points, so check them before you use them.</p>
+<p class="intro">Click a card to flip it. On the back, Expand opens the full setup steps and agent instructions, and Copy Instructions copies them so you can paste them into a new agent. Taken from the AI Strategy slides; the steps and instructions are suggested starting points, so check them before you use them.</p>
 <div class="filters" role="group" aria-label="Filter"><button data-f="all" aria-pressed="true">All</button><button data-f="inuse" aria-pressed="false">In Use</button><button data-f="proposed" aria-pressed="false">Proposed</button></div>
 <section id="sec-inuse"><h2 class="sec">In use today</h2><div class="grid" id="grid-inuse"></div></section>
 <section id="sec-proposed"><h2 class="sec">Proposed agents</h2><div class="grid" id="grid-proposed"></div></section>
 </main>
+<dialog class="panel" id="panel" aria-labelledby="panel-title">
+  <div class="panel-head"><h2 id="panel-title"></h2><div class="actions"><span class="status" role="status" aria-live="polite"></span><button type="button" class="btn primary" data-act="copy">Copy Instructions</button><button type="button" class="btn" data-act="close-panel">Close</button></div></div>
+  <div class="panel-body" id="panel-body"></div>
+</dialog>
 <script>
 // Add a new agent by adding an object to this list. g is "inuse" or "proposed".
 const agents = [
@@ -418,19 +431,16 @@ const card = (a, i) => `
         <span class="hint">Click to see setup</span>
       </div>
       <div class="face back" role="region" aria-label="Setup for ${esc(a.name)}" inert>
-        <div class="back-head">
-          <h2>Set up ${esc(a.name)}</h2>
-          <button type="button" class="btn" data-act="close">Flip Back</button>
-        </div>
+        <div class="back-head"><h2>${esc(a.name)}</h2><button type="button" class="btn sm" data-act="close">Flip Back</button></div>
         <h3>Connect</h3>
         <div class="chips">${a.sources.map(x => `<span class="chip">${esc(x)}</span>`).join("")}</div>
-        <h3>Steps</h3>
-        <ol>${a.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
-        <div class="instr-head">
-          <h3 id="ih-${i}">Instructions</h3>
-          <div class="actions"><span class="status" role="status" aria-live="polite"></span><button type="button" class="btn primary" data-act="copy">Copy Instructions</button></div>
+        <h3>Instructions preview</h3>
+        <pre class="preview" aria-hidden="true">${esc(a.prompt)}</pre>
+        <div class="actions">
+          <button type="button" class="btn primary" data-act="expand" aria-haspopup="dialog">Expand</button>
+          <button type="button" class="btn" data-act="copy">Copy Instructions</button>
+          <span class="status sr" role="status" aria-live="polite"></span>
         </div>
-        <pre class="prompt" aria-labelledby="ih-${i}">${esc(a.prompt)}</pre>
       </div>
     </div>
   </div>`;
@@ -441,38 +451,38 @@ document.querySelectorAll(".filters button").forEach(b => b.addEventListener("cl
   const f = b.dataset.f;
   document.querySelectorAll(".filters button").forEach(x => x.setAttribute("aria-pressed", x === b));
   ["inuse","proposed"].forEach(g => document.getElementById("sec-" + g).hidden = !(f === "all" || f === g));
-  fitAll();
 }));
-
-const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-function fit(card) {
-  if (!card.classList.contains("flipped")) { card.style.height = ""; return; }
-  const back = card.querySelector(".back");
-  const base = parseFloat(getComputedStyle(card).minHeight) || 0;
-  card.style.height = "auto";
-  back.style.position = "relative";            // measure natural height of the back
-  const h = back.scrollHeight;
-  back.style.position = "";
-  card.style.height = Math.max(h, base, 380) + "px";
-}
-function fitAll() { document.querySelectorAll(".card.flipped").forEach(fit); }
-window.addEventListener("resize", fitAll);
 
 function setFlipped(card, on) {
   const front = card.querySelector(".front"), back = card.querySelector(".back");
   card.classList.toggle("flipped", on);
   front.setAttribute("aria-pressed", on);
-  if (on) { front.setAttribute("inert", ""); back.removeAttribute("inert"); }
-  else { back.setAttribute("inert", ""); front.removeAttribute("inert"); }
-  fit(card);
-  if (on) {
-    back.scrollTop = 0;
-    back.querySelector("[data-act=close]").focus({preventScroll: true});
-    card.scrollIntoView({block: "nearest", behavior: reduced() ? "auto" : "smooth"});
-  } else {
-    front.focus({preventScroll: true});
-  }
+  if (on) { front.setAttribute("inert", ""); back.removeAttribute("inert"); back.querySelector("[data-act=expand]").focus({preventScroll: true}); }
+  else { back.setAttribute("inert", ""); front.removeAttribute("inert"); front.focus({preventScroll: true}); }
 }
+
+const panel = document.getElementById("panel");
+let panelAgent = null, panelReturn = null;
+function openPanel(a, from) {
+  panelAgent = a; panelReturn = from;
+  document.getElementById("panel-title").textContent = "Set up " + a.name;
+  document.getElementById("panel-body").innerHTML = `
+    <h3>Connect</h3><div class="chips">${a.sources.map(x => `<span class="chip">${esc(x)}</span>`).join("")}</div>
+    <h3>Steps</h3><ol>${a.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
+    <h3 id="panel-ih">Instructions</h3>
+    <pre class="prompt" aria-labelledby="panel-ih">${esc(a.prompt)}</pre>`;
+  panel.querySelector(".status").textContent = "";
+  panel.showModal();
+  panel.querySelector(".panel-body").scrollTop = 0; panel.scrollTop = 0;
+  panel.querySelector("[data-act=close-panel]").focus();
+}
+panel.addEventListener("close", () => { if (panelReturn) panelReturn.focus(); panelReturn = null; });
+panel.addEventListener("click", e => {
+  if (e.target === panel) { panel.close(); return; }       // click on the backdrop
+  const btn = e.target.closest("button"); if (!btn) return;
+  if (btn.dataset.act === "close-panel") panel.close();
+  if (btn.dataset.act === "copy") doCopy(btn, panel.querySelector(".status"), panelAgent.prompt, panel.querySelector(".prompt"));
+});
 
 // Copy: Mac app bridge first, then the Clipboard API, then a hidden textarea.
 async function copyText(text) {
@@ -493,6 +503,18 @@ async function copyText(text) {
   return ok;
 }
 
+function doCopy(btn, status, text, selectEl) {
+  copyText(text).then(ok => {
+    if (ok) { btn.textContent = "Copied"; btn.classList.add("done"); status.textContent = "Instructions copied"; }
+    else {
+      if (selectEl) { const r = document.createRange(); r.selectNodeContents(selectEl); const s = getSelection(); s.removeAllRanges(); s.addRange(r); status.textContent = "Text selected, press Cmd+C to copy"; }
+      else status.textContent = "Copy failed, use Expand and copy from there";
+    }
+    clearTimeout(btn._t);
+    btn._t = setTimeout(() => { btn.textContent = "Copy Instructions"; btn.classList.remove("done"); status.textContent = ""; }, 2000);
+  });
+}
+
 document.querySelectorAll(".card").forEach(card => {
   const a = agents[+card.dataset.i];
   const front = card.querySelector(".front"), back = card.querySelector(".back");
@@ -504,28 +526,13 @@ document.querySelectorAll(".card").forEach(card => {
   back.addEventListener("click", e => {
     const btn = e.target.closest("button");
     if (btn) {
-      e.stopPropagation();
+      e.stopPropagation();                                   // buttons never flip the card
       if (btn.dataset.act === "close") setFlipped(card, false);
-      if (btn.dataset.act === "copy") {
-        const status = card.querySelector(".status");
-        copyText(a.prompt).then(ok => {
-          if (ok) {
-            btn.textContent = "Copied"; btn.classList.add("done"); status.textContent = "Instructions copied";
-          } else {
-            const r = document.createRange(); r.selectNodeContents(card.querySelector(".prompt"));
-            const s = getSelection(); s.removeAllRanges(); s.addRange(r);
-            status.textContent = "Text selected, press Cmd+C to copy";
-          }
-          clearTimeout(btn._t);
-          btn._t = setTimeout(() => { btn.textContent = "Copy Instructions"; btn.classList.remove("done"); status.textContent = ""; }, 2000);
-        });
-      }
+      if (btn.dataset.act === "expand") openPanel(a, btn);
+      if (btn.dataset.act === "copy") doCopy(btn, card.querySelector(".status"), a.prompt, null);
       return;
     }
-    // Clicking empty space on the back flips it, but not while reading or selecting the instructions.
-    if (e.target.closest(".prompt, ol, .chips")) return;
-    if (String(getSelection())) return;
-    setFlipped(card, false);
+    setFlipped(card, false);                                 // clicking elsewhere on the back flips it back
   });
 });
 </script>
