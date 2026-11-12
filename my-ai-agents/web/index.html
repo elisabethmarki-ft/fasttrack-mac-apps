@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AI Agents and Prompts · Fast Track</title><link rel="stylesheet" href="fasttrack-brand.css">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:var(--ft-surface-secondary);color:var(--ft-fg-1)}
+.page-header{height:50px;display:flex;align-items:center;gap:12px;padding:0 32px;background:var(--ft-surface-base);border-bottom:1px solid var(--ft-border-base)}
+.page-header img{width:24px;height:24px}
+main{padding:32px;max-width:1200px;margin:auto}
+h1{font-size:28px;line-height:36px;letter-spacing:-.5px;margin:0 0 8px}
+.label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.2px;color:var(--ft-fg-2);margin:0 0 8px}
+.intro{color:var(--ft-fg-2);margin:0 0 32px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px}
+.card{perspective:1200px;height:380px}
+.card-btn{all:unset;display:block;width:100%;height:100%;cursor:pointer;border-radius:8px}
+.card-btn:focus-visible{outline:2px solid var(--ft-border-focus);outline-offset:3px}
+.inner{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
+.card.flipped .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--ft-surface-base);border:1px solid var(--ft-border-base);border-radius:8px;padding:24px;display:flex;flex-direction:column;box-shadow:var(--ft-shadow-card)}
+.back{transform:rotateY(180deg);overflow:auto}
+.tag{align-self:flex-start;font-size:12px;font-weight:700;border-radius:4px;padding:2px 8px;background:var(--ft-color-primary-lightest);color:#2c2c2c;margin-bottom:16px}
+.face h2{font-size:20px;line-height:26px;margin:0 0 12px}
+.face p{margin:0 0 12px;color:var(--ft-fg-2);line-height:1.5}
+.hint{margin-top:auto;font-size:13px;font-weight:700;color:var(--ft-link-base)}
+.back h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.2px;margin:12px 0 6px;color:var(--ft-fg-1)}
+.back ol,.back ul{margin:0;padding-left:20px;line-height:1.5}
+.back li{margin-bottom:6px}
+.prompt{font-family:var(--ft-font-family-code);font-size:13px;background:var(--ft-surface-tertiary);border:1px solid var(--ft-border-base);border-radius:4px;padding:8px;white-space:pre-wrap;color:var(--ft-fg-1)}
+.filters{display:flex;gap:8px;margin:0 0 24px}
+.filters button{font:inherit;font-weight:700;font-size:14px;border:1px solid var(--ft-border-base);border-radius:8px;background:var(--ft-surface-base);color:var(--ft-fg-1);padding:8px 14px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--ft-color-primary-base);border-color:var(--ft-color-primary-base);color:#2c2c2c}
+.filters button:focus-visible{outline:2px solid var(--ft-border-focus);outline-offset:3px}
+h2.sec{font-size:20px;line-height:24px;margin:8px 0 16px}
+section+section{margin-top:40px}
+.tag.proposed{background:var(--ft-color-secondary-lightest)}
+.meta{font-size:13px;color:var(--ft-fg-2)}
+.front{overflow:auto}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12px;border:1px solid var(--ft-border-base);border-radius:4px;padding:2px 8px;color:var(--ft-fg-1)}
+.todo{font-size:14px;color:var(--ft-fg-2);font-style:italic}
+@media(max-width:600px){main{padding:16px}.page-header{padding:0 16px}.card{height:420px}}
+@media(prefers-reduced-motion:reduce){.inner{transition:none}}
+</style></head><body>
+<header class="page-header"><img src="fasttrack-logo.svg" alt="Fast Track"><strong>AI Agents and Prompts</strong></header>
+<main>
+<p class="label">Partner Success</p>
+<h1>My AI Agents</h1>
+<p class="intro">Click a card to flip it and see how to set it up. Taken from the AI Strategy slides; setup steps still to be added.</p>
+<div class="filters" role="group" aria-label="Filter"><button data-f="all" aria-pressed="true">All</button><button data-f="inuse" aria-pressed="false">In Use</button><button data-f="proposed" aria-pressed="false">Proposed</button></div>
+<section id="sec-inuse"><h2 class="sec">In use today</h2><div class="grid" id="grid-inuse"></div></section>
+<section id="sec-proposed"><h2 class="sec">Proposed agents</h2><div class="grid" id="grid-proposed"></div></section>
+</main>
+<script>
+// Add a new agent by adding an object to this list. g is "inuse" or "proposed".
+const agents = [
+ {
+  "g": "inuse",
+  "name": "Meeting agendas",
+  "summary": "Drafts the agenda for each partner meeting from Slack, Gmail, Intercom tickets, incidents and the Fast Track Relationships tool. The PM reviews it and shares it with the partner.",
+  "meta": "Status: In use",
+  "sources": [
+   "Slack",
+   "Gmail",
+   "Intercom",
+   "incident.io",
+   "Fast Track Relationships"
+  ],
+  "prompt": "Before each partner meeting, draft an agenda using recent Slack threads, emails, open Intercom tickets, incidents and Fast Track Relationships notes for that partner. Give it to me to review before I share it."
+ },
+ {
+  "g": "inuse",
+  "name": "Meeting summaries",
+  "summary": "Turns each partner meeting into a summary with decisions and action items. The PM reviews it and shares it.",
+  "meta": "Status: In use",
+  "sources": [
+   "Meeting transcript or notes"
+  ],
+  "prompt": "After each partner meeting, write a summary with the decisions made and action items with owners. Give it to me to review before I share it."
+ },
+ {
+  "g": "inuse",
+  "name": "Handover summaries",
+  "summary": "Pulls a new partner's handover into one summary: scope, out-of-scope items, open issues and key contacts. Also prepares vacation handovers for the backup PM and a catch-up summary when the PM returns.",
+  "meta": "Status: In use",
+  "sources": [
+   "Handover documents",
+   "Slack",
+   "Intercom"
+  ],
+  "prompt": "For a new partner, summarise the handover into scope, out-of-scope items, open issues and key contacts. Before I go on leave, prepare a handover of each partner's open items for my backup PM, and when I return, summarise what happened while I was away."
+ },
+ {
+  "g": "inuse",
+  "name": "FTIP tickets",
+  "summary": "Creates the Integration Expansion ticket in FTIP from the partner's request, with the details the team needs. The PM reviews it before it is raised.",
+  "meta": "Status: In use",
+  "sources": [
+   "FTIP",
+   "Partner request"
+  ],
+  "prompt": "From a partner's request, draft an Integration Expansion ticket for FTIP with all the details the team needs. Show it to me to review before it is raised."
+ },
+ {
+  "g": "inuse",
+  "name": "PM Task Board",
+  "summary": "A personalised dashboard that keeps each PM's daily task list up to date, carrying unfinished tasks over to the next day every morning.",
+  "meta": "Status: In use",
+  "sources": [
+   "Task dashboard"
+  ],
+  "prompt": "Keep my daily task list up to date. Every morning, carry unfinished tasks over to today."
+ },
+ {
+  "g": "inuse",
+  "name": "Team KPIs dashboard",
+  "summary": "Refreshes the team's KPI dashboard with the latest figures, such as NPS, health and AI usage, and updates each partner's summary and flags.",
+  "meta": "Status: In use",
+  "sources": [
+   "NPS",
+   "Intercom",
+   "incident.io",
+   "Grafana",
+   "Fast Track Relationships"
+  ],
+  "prompt": "Refresh the team KPI dashboard with the latest NPS, health, tickets, incidents and AI usage figures, and update each partner's summary and flags."
+ },
+ {
+  "g": "proposed",
+  "name": "Handover Checker",
+  "summary": "Checks every handover against the checklist (providers, regulatory rules, staging, test data) and flags gaps before kickoff.",
+  "meta": "Gap it closes: Integration, Commercial",
+  "sources": [
+   "Handover documents",
+   "Handover checklist"
+  ],
+  "prompt": "Check each new handover against the checklist: providers, regulatory rules, staging and test data. Flag anything missing before kickoff."
+ },
+ {
+  "g": "proposed",
+  "name": "Escalation Watcher",
+  "summary": "Tracks escalated Intercom tickets, flags any past SLA and drafts the partner update.",
+  "meta": "Gap it closes: Partner Support",
+  "sources": [
+   "Intercom"
+  ],
+  "prompt": "Watch escalated Intercom tickets for my partners. Flag any that are past SLA and draft an update I can send the partner."
+ },
+ {
+  "g": "proposed",
+  "name": "Incident Briefer",
+  "summary": "Tells each PM when an incident hits their portfolio and posts a weekly incident summary.",
+  "meta": "Gap it closes: SRE",
+  "sources": [
+   "incident.io",
+   "Slack"
+  ],
+  "prompt": "Tell me as soon as an incident affects one of my partners, and post a weekly summary of incidents across my portfolio."
+ },
+ {
+  "g": "proposed",
+  "name": "Platform Issue Notifier",
+  "summary": "Finds every partner on an affected platform and drafts the notice for each.",
+  "meta": "Gap it closes: B2B",
+  "sources": [
+   "incident.io",
+   "Partner platform list"
+  ],
+  "prompt": "When a platform has an issue, find every partner on that platform and draft a notice for each one for me to review."
+ },
+ {
+  "g": "proposed",
+  "name": "Commercial Chaser",
+  "summary": "Follows addendums and signatures and nudges the owner until they are done.",
+  "meta": "Gap it closes: Commercial",
+  "sources": [
+   "Contract tracker",
+   "Slack",
+   "Gmail"
+  ],
+  "prompt": "Track open addendums and signatures for my partners and remind the owner until each one is done."
+ },
+ {
+  "g": "proposed",
+  "name": "Integration Tracker",
+  "summary": "Reports progress and due dates from FTIP to the partner and PM each week.",
+  "meta": "Gap it closes: Integration",
+  "sources": [
+   "FTIP"
+  ],
+  "prompt": "Every week, report progress and due dates for my partners' FTIP integration tickets, as a draft for the partner and a summary for me."
+ },
+ {
+  "g": "proposed",
+  "name": "Portfolio Brief",
+  "summary": "A daily summary per PM: open tickets, incidents, platform usage and partners at risk.",
+  "meta": "Gap it closes: Partner Success",
+  "sources": [
+   "Intercom",
+   "incident.io",
+   "Grafana",
+   "Health scores"
+  ],
+  "prompt": "Every morning, give me a summary of my portfolio: open tickets, incidents, platform usage and partners at risk."
+ },
+ {
+  "g": "proposed",
+  "name": "Partner Health & NPS Tracker",
+  "summary": "Tracks each partner's health score and NPS responses, flags drops and detractors, and prompts the PM to follow up.",
+  "meta": "Gap it closes: Partner Success",
+  "sources": [
+   "Health scores",
+   "NPS"
+  ],
+  "prompt": "Track health scores and NPS responses for my partners. Flag any drop or detractor and remind me to follow up."
+ },
+ {
+  "g": "proposed",
+  "name": "The Bible Assistant",
+  "summary": "Answers scope, process and tooling questions from the Bible.",
+  "meta": "Gap it closes: All teams",
+  "sources": [
+   "The Bible"
+  ],
+  "prompt": "Answer scope, process and tooling questions using the Bible, and say which section the answer comes from."
+ },
+ {
+  "g": "proposed",
+  "name": "Slack Sentiment Watcher",
+  "summary": "Notifies the PM if a partner responds in a negative tone on Slack.",
+  "meta": "Gap it closes: Partner Success",
+  "sources": [
+   "Slack"
+  ],
+  "prompt": "Watch my partners' Slack channels and tell me when a partner replies in a negative tone, with a link to the message."
+ },
+ {
+  "g": "proposed",
+  "name": "Release Notifier",
+  "summary": "Reports when releases are made, ideally in advance, what they will cover and if anything changes.",
+  "meta": "Gap it closes: Product Release",
+  "sources": [
+   "Release notes",
+   "Slack"
+  ],
+  "prompt": "Tell me about upcoming releases in advance, what they cover, and any changes to the plan, and confirm when they go out."
+ }
+];
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const card = (a, i) => `
+  <div class="card" id="card-${i}">
+    <div class="card-btn" role="button" tabindex="0" aria-pressed="false" aria-label="${esc(a.name)}, show setup">
+      <div class="inner">
+        <div class="face front">
+          <span class="tag ${a.g}">${a.g === "inuse" ? "In Use" : "Proposed"}</span>
+          <h2>${esc(a.name)}</h2>
+          <p>${esc(a.summary)}</p>
+          <p class="meta">${esc(a.meta)}</p>
+          <span class="hint">Click to see setup</span>
+        </div>
+        <div class="face back">
+          <h2>Set up ${esc(a.name)}</h2>
+          <h3>Connect</h3>
+          <div class="chips">${a.sources.map(x => `<span class="chip">${esc(x)}</span>`).join("")}</div>
+          <h3>Steps</h3>
+          <p class="todo">Setup steps to be added.</p>
+          <h3>Starter instructions</h3>
+          <div class="prompt">${esc(a.prompt)}</div>
+          <span class="hint" style="margin-top:16px">Click to flip back</span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+["inuse","proposed"].forEach(g => {
+  document.getElementById("grid-" + g).innerHTML = agents.map((a, i) => a.g === g ? card(a, i) : "").join("");
+});
+document.querySelectorAll(".filters button").forEach(b => b.addEventListener("click", () => {
+  const f = b.dataset.f;
+  document.querySelectorAll(".filters button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  ["inuse","proposed"].forEach(g => document.getElementById("sec-" + g).hidden = !(f === "all" || f === g));
+}));
+document.querySelectorAll(".card").forEach(card => {
+  const btn = card.querySelector(".card-btn");
+  const flip = () => {
+    const on = card.classList.toggle("flipped");
+    btn.setAttribute("aria-pressed", on);
+  };
+  btn.addEventListener("click", flip);
+  btn.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); }
+  });
+});
+</script>
+</body></html>

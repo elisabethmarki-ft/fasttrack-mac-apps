@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleName</key><string>PM Task Board</string>
+<key>CFBundleDisplayName</key><string>PM Task Board</string>
+<key>CFBundleIdentifier</key><string>ai.fasttrack.lis.pmtaskboard</string>
+<key>CFBundleExecutable</key><string>PMTaskBoard</string>
+<key>CFBundleIconFile</key><string>AppIcon</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>CFBundleShortVersionString</key><string>1.0</string>
+<key>CFBundleVersion</key><string>1</string>
+<key>LSMinimumSystemVersion</key><string>13.0</string>
+<key>NSHighResolutionCapable</key><true/>
+<key>StartURL</key><string>https://artifacts.fasttrack.dev/a/d0f98d43-b586-4042-bc6e-9745ed990c0d</string>
+<key>NSPrincipalClass</key><string>NSApplication</string>
+</dict></plist>
