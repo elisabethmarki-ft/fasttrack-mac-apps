@@ -35,8 +35,18 @@ h1{font-size:28px;line-height:36px;letter-spacing:-.5px;margin:0 0 8px}
 .guide{font-size:13px;font-weight:700;color:var(--ft-link-base)}
 .guide:hover{color:var(--ft-link-hover)}
 .guide:focus-visible{outline:2px solid var(--ft-border-focus);outline-offset:2px}
-.back .guide{margin-top:8px;align-self:flex-start}
-.guide-p{margin:12px 0 0}
+.links{display:flex;flex-wrap:wrap;gap:4px 16px}
+.back-links{margin-top:8px}
+.back .links:not(.back-links){flex-direction:column;align-items:flex-start;gap:6px}
+.spacer{flex:1 1 auto}
+.panel-links{margin-top:12px}
+.routine{border:1px solid var(--ft-border-base);border-radius:8px;padding:12px 16px;margin:0 0 8px}
+.routine-name{font-weight:700;margin:0 0 6px}
+.routine dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 12px;margin:0;line-height:1.5}
+.routine dt{font-size:13px;font-weight:700;color:var(--ft-fg-2)}
+.routine dd{margin:0}
+.note{font-size:13px;color:var(--ft-fg-2);margin:0 0 8px}
+@media(max-width:600px){.routine dl{grid-template-columns:1fr}.routine dd{margin-bottom:4px}}
 .back-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .btn.sm{font-size:13px;padding:4px 10px;flex:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -224,27 +234,69 @@ const streams = [
    "Run it once by hand to check it works. The first run may give you several alerts if there are open incidents; after that you only get new ones."
   ],
   "prompt": "You are checking for new high-severity incidents at Fast Track (incident.io workspace: fasttrack-solutions).\n\nSteps:\n1. Use the incident.io connector tools (e.g. incident list/search tools) to fetch incidents created or updated in the last 35 minutes.\n\n2. Filter by severity:\n- P1 (or \"Critical\" if the workspace uses that label for its top level): include ALL incidents regardless of which partner/brand is affected.\n- P2 (or \"Major\"): include ONLY if the incident affects one of my partners. My partners/brands are: [PARTNER 1], [PARTNER 2 (alternative name)], [PARTNER 3], ... Match partner names case-insensitively against the incident name, summary, affected services/brands custom fields, and brand_name labels (e.g. \"goldenbet: no consumers on queue...\"). A P2 that clearly states it affects all/multiple partners broadly also counts. If a P2 has no identifiable partner and doesn't affect partners broadly, skip it.\n- Skip P3 and below entirely.\n\n3. Track which incidents you've already alerted on: keep a file alerted-incidents.txt at [FULL PATH TO YOUR FOLDER]/alerted-incidents.txt (this persistent location is already in use — do not use the temporary outputs folder, it is cleared between sessions) listing incident IDs already sent. Skip anything already in that file. Append newly alerted incident IDs to it.\n\n4. For each NEW qualifying incident, call incident_show to get its Slack channel link (the slack_channel_url field). If the field is missing, omit the Channel line.\n\n5. If there are NEW qualifying incidents not yet alerted: for EACH incident, create a Google Calendar event on my primary calendar using the Google Calendar connector's create_event tool. This is the notification — it triggers a pop-up on my desktop and phone. Settings:\n- summary: 🚨 [Severity] [Partner/brand if known]: [short incident name, max ~80 chars]\n- startTime: the current time rounded up to the next minute; endTime: startTime + 5 minutes\n- timeZone: [YOUR TIME ZONE, e.g. Europe/Malta]\n- overrideReminders: [{\"method\": \"popup\", \"minutes\": 0}]\n- availability: AVAILABILITY_FREE (so it doesn't block my calendar)\n- colorId: \"11\" (red)\n- notificationLevel: NONE\n- no attendees, no Google Meet link\n- description (HTML allowed), in this format:\n  <b>[Severity] Incident: [Name]<\/b><br>\n  Status: [status] | Reported: [time in my time zone]<br>\n  Affected: [affected services/brands if available]<br>\n  Summary: [1-2 sentence summary]<br>\n  Channel: <a href=\"[slack_channel_url]\">Slack incident channel<\/a><br>\n  Link: <a href=\"https://app.incident.io/fasttrack-solutions/incidents/[id]\">incident.io<\/a>\nKeep the tone factual and concise. Only record an incident ID in alerted-incidents.txt after its calendar event was created successfully.\n\nFallback: if the Google Calendar connector is unavailable or create_event errors, send the same content as a Slack DM to [YOUR NAME] instead (find me with slack_search_users, email [YOUR EMAIL]). Start that DM with one line saying the calendar pop-up failed and the Google Calendar connector may need reconnecting.\n\n6. If there are no new qualifying incidents, do nothing — do not create any event or send any message.\n\nIf the incident.io connector is not available or errors with authentication, notify me once (record \"auth-error-notified\" in alerted-incidents.txt and don't repeat it): create a calendar pop-up event as above titled \"⚠️ incident.io connector needs reconnecting in Claude settings\" (fall back to a Slack DM if the calendar fails).",
-  "guide": "https://home.fasttrack.ai/gitbook/spaces/38hHE34UpDQeeWxGIImT/how-to-set-up-p1-p2-incident-alerts-in-claude"
+  "links": [
+   {
+    "label": "Full setup guide",
+    "url": "https://home.fasttrack.ai/gitbook/spaces/38hHE34UpDQeeWxGIImT/how-to-set-up-p1-p2-incident-alerts-in-claude"
+   }
+  ]
  },
  {
   "g": "inuse",
-  "name": "Release monitoring",
-  "summary": "Reports when releases are made, ideally in advance, what they will cover and if anything changes.",
+  "name": "Release & Pipeline Monitoring (Rewards Guru)",
+  "summary": "Three Monday-morning scheduled routines run by my Rewards Guru bot in Grok Bot (not Claude Cowork). They read Linear only, strictly read-only, with no Slack. Times are Europe/Malta.",
   "meta": "Status: In use",
   "sources": [
-   "Release notes",
-   "Slack"
+   "Linear (read-only)",
+   "Google Drive / Docs / Slides",
+   "Grok Bot canvas page"
   ],
   "steps": [
-   "Create a new stream and name it Release monitoring.",
-   "Connect its sources: Release notes and Slack, with read-only access wherever the tool offers it.",
-   "Copy the instructions below with Copy Instructions and paste them into the stream's instructions or description.",
-   "Replace the partner list in CONTEXT with your own portfolio, and adjust any defaults marked 'adjust'.",
-   "Add a daily check plus a weekly preview routine (for example Monday 10:00 Europe/Malta).",
-   "Test run: ask for the latest release and the next planned one and compare with the release notes.",
-   "Review the first few outputs closely, then tighten the instructions where it got things wrong."
+   "There is no separate guide: the setup is a Grok Bot bot (Rewards Guru) with Linear and Google Drive connected and the three routines below saved.",
+   "Create or open the bot in Grok Bot (Rewards Guru).",
+   "Connect Linear, read-only, and Google Drive (to edit the doc and deck and to create the weekly doc). Do not connect Slack for these routines.",
+   "Create routine 1, Monday feature pipeline refresh, scheduled Monday around 09:00 Europe/Malta, and paste prompt (1).",
+   "Create routine 2, Monday Rewards doc & deck refresh, scheduled Monday around 09:15 Europe/Malta, and paste prompt (2).",
+   "Create routine 3, Monday partner product update report, scheduled Monday around 09:30 Europe/Malta, and paste prompt (3).",
+   "Run each routine once by hand.",
+   "Review the page, doc, deck and new weekly doc, and the messages the bot sends you, before you share anything with partners."
   ],
-  "prompt": "ROLE\nYou are my release notification stream.\n\nGOAL\nI know about releases ahead of time, understand what they mean for my partners, and hear about any change to the plan.\n\nCONTEXT\nI am a Partner Manager (PM) in the Partner Success team at Fast Track, an iGaming CRM platform (Fast Track CRM, a Player Engagement Platform). I look after a portfolio of operator partners: Glitnor, PowerPlaym, Seffiaray, SlotExpress, iBet, PressEnter, Goldenbet and One Casino. (If you share this stream, replace this list with your own partners.)\n\nDATA SOURCES\n- Release notes: planned and published releases, with contents and dates.\n- Slack: release announcement channels, for dates and late changes.\n\nWHEN TO RUN\nWeekly preview of upcoming releases, plus alerts when a release is published, moved or changed.\n\nPROCESS\n1. List upcoming releases with planned date and contents.\n2. For each release, pick out changes that matter to my partners (features they asked for, changes to things they use, anything needing action or communication).\n3. When a date or scope changes, alert me with old vs new.\n4. When a release goes out, confirm it and summarise what shipped.\n5. Draft a short partner-facing note for releases that affect partners, for me to review.\n\nOUTPUT FORMAT\n- Weekly preview: release, planned date, key changes, partners affected, action needed.\n- Change alerts: what changed (date or scope), old vs new.\n- Release confirmations: what shipped, link.\n- Draft partner notes.\n\nRULES\n- Read-only: never edit, close, reassign or delete anything in a source tool unless I explicitly ask in this chat.\n- Draft, never send: anything meant for a partner or a colleague comes to me first as a draft. I decide what is shared.\n- Only use facts you found in the sources. If something is unclear or missing, say so instead of guessing.\n- Link every item back to its source (Slack thread, email, ticket, incident, document) so I can check it.\n- Never share unreleased features with partners; drafts are for after release unless I decide otherwise.\n- Only report dates from the release notes or official announcements.\n\nEDGE CASES\n- No date announced: say 'date not set'.\n- Release partly rolled out: say which parts or markets.\n- Conflicting dates between notes and Slack: show both and flag."
+  "routines": [
+   {
+    "name": "1. Monday feature pipeline refresh",
+    "schedule": "Monday, around 09:00 Europe/Malta",
+    "scope": "Customer-facing Linear projects, initiatives and releases across Rewards, Fast Track AI, CRM Experience, CRM Core and other product work. Excludes SRE, QA, Cloud, tooling, design, internal ops and engineering-pillar work.",
+    "output": "Updates the Feature Pipeline Tracker page in place, then messages me in my Rewards Guru chat with the changes grouped as released / moved or slipped / new, with Linear links, flagging anything tied to my partners."
+   },
+   {
+    "name": "2. Monday Rewards doc & deck refresh",
+    "schedule": "Monday, around 09:15 Europe/Malta",
+    "scope": "Rewards only, rolling window of 2 weeks back and 2 weeks forward.",
+    "output": "Edits in place the internal Google Doc 'Rewards Pipeline Update' (internal status labels, Linear links, leads, moved/slipped, watch list, partner flags) and the partner-facing Slides 'Rewards Product Update' (only Released and Coming soon, with expected dates and 'Dates are indicative and may change.'; never Linear, links, names, partners, incidents, slipped dates or internal work). Then sends me the links, what entered or left the window, slips, decisions needed and 2-3 deck thumbnails."
+   },
+   {
+    "name": "3. Monday partner product update report",
+    "schedule": "Monday, around 09:30 Europe/Malta",
+    "scope": "Rewards, Fast Track AI and CRM customer-facing features.",
+    "output": "Creates a new partner-facing Google Doc each week titled 'Fast Track Product Update, <Monday date>', with Released (last 2 weeks) and Coming soon (next 2 weeks, expected dates, 'dates may change'). Same partner-safe rules, about 1-2 pages. I get the link, a one-line summary per section, and points to check before sharing."
+   }
+  ],
+  "prompt": "Release & Pipeline Monitoring: three Rewards Guru routines (Grok Bot). These prompts are condensed from the saved routines.\n\n(1) Monday feature pipeline refresh (Monday ~09:00 Europe/Malta)\nRefresh Lis's Feature Pipeline Tracker Page from Linear (read-only). Customer-facing scope: Rewards, Fast Track AI, CRM Experience, CRM Core, other product work; exclude SRE/QA/Cloud/tooling/design/internal ops. Edit the Page in place, update the freshness date, never invent data. Compare with last week: newly released, release notes, stage changes, moved target dates, new projects, items past target. Message Lis with released / moved or slipped / new, Linear links, partner flags; one line if nothing changed.\n\n(2) Monday Rewards doc & deck refresh (Monday ~09:15 Europe/Malta)\nRefresh the internal Rewards doc and the external Rewards deck from Linear, rolling window 2 weeks back / 2 forward. Linear read-only; never delete Drive files; edit in place; never invent. Internal doc keeps all internal detail plus a watch list for overdue items. External deck: only Released / Coming soon, partner-safe, 4-5 features per slide, overflow-checked. Message Lis with links, window changes, slips, decisions needed, thumbnails.\n\n(3) Monday partner product update report (Monday ~09:30 Europe/Malta)\nCreate a new partner-facing Google Doc 'Fast Track Product Update, <date>': released last 2 weeks + coming next 2 weeks, customer-facing Rewards / FT AI / CRM only, live from Linear read-only. No internal links, names, incident numbers or slipped dates; 'Released' / 'Coming soon' with expected dates and a dates-may-change note. Send Lis the link, a summary and judgement calls, even in a quiet week.",
+  "links": [
+   {
+    "label": "Feature Pipeline Tracker",
+    "url": "https://cursor.com/canvas/store-f7ad8cd1-3bde-4750-9197-587d2e864c6e/53d9dd72-d7aa-4692-9aac-8ed205ccd607"
+   },
+   {
+    "label": "Rewards Pipeline Update doc",
+    "url": "https://docs.google.com/document/d/1As5H0ejwj4kXT8aM0X8bAtid12BoqiCF9XhpNK0Oh5U/edit"
+   },
+   {
+    "label": "Rewards Product Update deck",
+    "url": "https://docs.google.com/presentation/d/1PJNH2jMkRl132KxSXueVoGhIf8vD_KxDQMtM0FGADbA/edit"
+   }
+  ],
+  "note": "Condensed from the saved routines."
  },
  {
   "g": "proposed",
@@ -448,6 +500,7 @@ const streams = [
 ];
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const links = (a, cls) => a.links && a.links.length ? `<div class="links ${cls}">${a.links.map(l => `<a class="guide" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join("")}</div>` : "";
 const card = (a, i) => `
   <div class="card" id="card-${i}" data-i="${i}">
     <div class="inner">
@@ -462,14 +515,14 @@ const card = (a, i) => `
         <div class="back-head"><h2>${esc(a.name)}</h2><button type="button" class="btn sm" data-act="close">Flip Back</button></div>
         <h3>Connect</h3>
         <div class="chips">${a.sources.map(x => `<span class="chip">${esc(x)}</span>`).join("")}</div>
-        <h3>Instructions preview</h3>
-        <pre class="preview" aria-hidden="true">${esc(a.prompt)}</pre>
+        ${a.links && a.links.length > 1 ? `<h3>Links</h3>${links(a, "")}<div class="spacer"></div>` : `<h3>Instructions preview</h3>
+        <pre class="preview" aria-hidden="true">${esc(a.prompt)}</pre>`}
         <div class="actions">
           <button type="button" class="btn primary" data-act="expand" aria-haspopup="dialog">Expand</button>
           <button type="button" class="btn" data-act="copy">Copy Instructions</button>
           <span class="status sr" role="status" aria-live="polite"></span>
         </div>
-        ${a.guide ? `<a class="guide" href="${esc(a.guide)}" target="_blank" rel="noopener">Full setup guide</a>` : ""}
+        ${a.links && a.links.length === 1 ? links(a, "back-links") : ""}
       </div>
     </div>
   </div>`;
@@ -498,8 +551,10 @@ function openPanel(a, from) {
   document.getElementById("panel-body").innerHTML = `
     <h3>Connect</h3><div class="chips">${a.sources.map(x => `<span class="chip">${esc(x)}</span>`).join("")}</div>
     <h3>Steps</h3><ol>${a.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
-    ${a.guide ? `<p class="guide-p"><a class="guide" href="${esc(a.guide)}" target="_blank" rel="noopener">Full setup guide</a></p>` : ""}
+    ${links(a, "panel-links")}
+    ${a.routines ? `<h3>Routines</h3>${a.routines.map(r => `<div class="routine"><p class="routine-name">${esc(r.name)}</p><dl><dt>Schedule</dt><dd>${esc(r.schedule)}</dd><dt>Scope</dt><dd>${esc(r.scope)}</dd><dt>Output</dt><dd>${esc(r.output)}</dd></dl></div>`).join("")}` : ""}
     <h3 id="panel-ih">Instructions</h3>
+    ${a.note ? `<p class="note">${esc(a.note)}</p>` : ""}
     <pre class="prompt" aria-labelledby="panel-ih">${esc(a.prompt)}</pre>`;
   panel.querySelector(".status").textContent = "";
   panel.showModal();
