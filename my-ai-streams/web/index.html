@@ -6,7 +6,8 @@ body{margin:0;background:var(--ft-surface-secondary);color:var(--ft-fg-1)}
 .page-header{height:50px;display:flex;align-items:center;gap:12px;padding:0 32px;background:var(--ft-surface-base);border-bottom:1px solid var(--ft-border-base)}
 .page-header img{width:24px;height:24px}
 main{padding:32px;max-width:1200px;margin:auto}
-h1{font-size:28px;line-height:36px;letter-spacing:-.5px;margin:0 0 8px}
+h1{font-size:28px;line-height:36px;letter-spacing:0;margin:0 0 8px}
+h2,h3{letter-spacing:0}
 .label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.2px;color:var(--ft-fg-2);margin:0 0 8px}
 .intro{color:var(--ft-fg-2);margin:0 0 24px;line-height:1.5;max-width:760px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px}
@@ -19,12 +20,12 @@ h1{font-size:28px;line-height:36px;letter-spacing:-.5px;margin:0 0 8px}
 .back{transform:rotateY(180deg);overflow:hidden;cursor:pointer}
 .tag{align-self:flex-start;font-size:12px;font-weight:700;border-radius:4px;padding:2px 8px;background:var(--ft-color-primary-lightest);color:#2c2c2c;margin-bottom:16px}
 .tag.proposed{background:var(--ft-color-secondary-lightest)}
-.face h2{font-size:20px;line-height:26px;margin:0 0 12px}
+.face h2{font-size:20px;line-height:28px;letter-spacing:.1px;margin:0 0 12px;overflow-wrap:break-word}
 .face p{margin:0 0 12px;color:var(--ft-fg-2);line-height:1.5}
 .meta{font-size:13px;color:var(--ft-fg-2)}
 .hint{margin-top:auto;font-size:13px;font-weight:700;color:var(--ft-link-base)}
 .back h3,.panel h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.2px;margin:16px 0 8px;color:var(--ft-fg-1)}
-.back h2{font-size:18px;line-height:24px;margin:0 0 4px}
+.back h2{font-size:18px;line-height:24px;letter-spacing:.1px;margin:0 0 4px}
 .back h3{margin:12px 0 6px}
 .panel ol{margin:0;padding-left:20px;line-height:1.5;max-width:860px}
 .panel li{margin-bottom:6px}
@@ -47,7 +48,8 @@ h1{font-size:28px;line-height:36px;letter-spacing:-.5px;margin:0 0 8px}
 .routine dd{margin:0}
 .note{font-size:13px;color:var(--ft-fg-2);margin:0 0 8px}
 @media(max-width:600px){.routine dl{grid-template-columns:1fr}.routine dd{margin-bottom:4px}}
-.back-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.back-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.back-head h2{flex:1 1 auto;min-width:0;overflow-wrap:break-word}
 .btn.sm{font-size:13px;padding:4px 10px;flex:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .instr-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 8px}
@@ -62,12 +64,12 @@ h1{font-size:28px;line-height:36px;letter-spacing:-.5px;margin:0 0 8px}
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 24px}
 .filters button{font:inherit;font-weight:700;font-size:14px;border:1px solid var(--ft-border-base);border-radius:8px;background:var(--ft-surface-base);color:var(--ft-fg-1);padding:8px 14px;cursor:pointer}
 .filters button[aria-pressed="true"]{background:var(--ft-color-primary-base);border-color:var(--ft-color-primary-base);color:#2c2c2c}
-h2.sec{font-size:20px;line-height:24px;margin:8px 0 16px}
+h2.sec{font-size:20px;line-height:28px;letter-spacing:.1px;margin:8px 0 16px}
 section+section{margin-top:40px}
 dialog.panel{width:min(920px,calc(100vw - 32px));max-height:calc(100vh - 48px);padding:0;border:1px solid var(--ft-border-base);border-radius:16px;background:var(--ft-surface-base);color:var(--ft-fg-1);box-shadow:var(--ft-shadow-modal)}
 dialog.panel::backdrop{background:var(--ft-overlay-base)}
 .panel-head{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 32px;background:var(--ft-surface-base);border-bottom:1px solid var(--ft-border-base)}
-.panel-head h2{font-size:20px;line-height:26px;margin:0}
+.panel-head h2{font-size:20px;line-height:28px;letter-spacing:.1px;margin:0;min-width:0;overflow-wrap:break-word}
 .panel-body{padding:8px 32px 32px}
 @media(max-width:600px){main{padding:16px}.page-header{padding:0 16px}.card{height:420px}.panel-head{padding:16px}.panel-body{padding:4px 16px 24px}}
 @media(prefers-reduced-motion:reduce){.inner{transition:none}}
