@@ -243,8 +243,8 @@ const streams = [
  },
  {
   "g": "inuse",
-  "name": "Release & Pipeline Monitoring (Rewards Guru)",
-  "summary": "Three Monday-morning scheduled routines run by my Rewards Guru bot in Grok Bot (not Claude Cowork). They read Linear only, strictly read-only, with no Slack. Times are Europe/Malta.",
+  "name": "Release & Pipeline Monitoring",
+  "summary": "Three Monday-morning scheduled routines in Grok Bot (not Claude Cowork). They read Linear only, strictly read-only, with no Slack. Times are Europe/Malta.",
   "meta": "Status: In use",
   "sources": [
    "Linear (read-only)",
@@ -252,8 +252,8 @@ const streams = [
    "Grok Bot canvas page"
   ],
   "steps": [
-   "There is no separate guide: the setup is a Grok Bot bot (Rewards Guru) with Linear and Google Drive connected and the three routines below saved.",
-   "Create or open the bot in Grok Bot (Rewards Guru).",
+   "There is no separate guide: the setup is a bot in Grok Bot with Linear and Google Drive connected and the three routines below saved.",
+   "Create or open the bot in Grok Bot.",
    "Connect Linear, read-only, and Google Drive (to edit the doc and deck and to create the weekly doc). Do not connect Slack for these routines.",
    "Create routine 1, Monday feature pipeline refresh, scheduled Monday around 09:00 Europe/Malta, and paste prompt (1).",
    "Create routine 2, Monday Rewards doc & deck refresh, scheduled Monday around 09:15 Europe/Malta, and paste prompt (2).",
@@ -266,7 +266,7 @@ const streams = [
     "name": "1. Monday feature pipeline refresh",
     "schedule": "Monday, around 09:00 Europe/Malta",
     "scope": "Customer-facing Linear projects, initiatives and releases across Rewards, Fast Track AI, CRM Experience, CRM Core and other product work. Excludes SRE, QA, Cloud, tooling, design, internal ops and engineering-pillar work.",
-    "output": "Updates the Feature Pipeline Tracker page in place, then messages me in my Rewards Guru chat with the changes grouped as released / moved or slipped / new, with Linear links, flagging anything tied to my partners."
+    "output": "Updates the Feature Pipeline Tracker page in place, then messages me in my chat with the bot with the changes grouped as released / moved or slipped / new, with Linear links, flagging anything tied to my partners."
    },
    {
     "name": "2. Monday Rewards doc & deck refresh",
@@ -281,7 +281,7 @@ const streams = [
     "output": "Creates a new partner-facing Google Doc each week titled 'Fast Track Product Update, <Monday date>', with Released (last 2 weeks) and Coming soon (next 2 weeks, expected dates, 'dates may change'). Same partner-safe rules, about 1-2 pages. I get the link, a one-line summary per section, and points to check before sharing."
    }
   ],
-  "prompt": "Release & Pipeline Monitoring: three Rewards Guru routines (Grok Bot). These prompts are condensed from the saved routines.\n\n(1) Monday feature pipeline refresh (Monday ~09:00 Europe/Malta)\nRefresh Lis's Feature Pipeline Tracker Page from Linear (read-only). Customer-facing scope: Rewards, Fast Track AI, CRM Experience, CRM Core, other product work; exclude SRE/QA/Cloud/tooling/design/internal ops. Edit the Page in place, update the freshness date, never invent data. Compare with last week: newly released, release notes, stage changes, moved target dates, new projects, items past target. Message Lis with released / moved or slipped / new, Linear links, partner flags; one line if nothing changed.\n\n(2) Monday Rewards doc & deck refresh (Monday ~09:15 Europe/Malta)\nRefresh the internal Rewards doc and the external Rewards deck from Linear, rolling window 2 weeks back / 2 forward. Linear read-only; never delete Drive files; edit in place; never invent. Internal doc keeps all internal detail plus a watch list for overdue items. External deck: only Released / Coming soon, partner-safe, 4-5 features per slide, overflow-checked. Message Lis with links, window changes, slips, decisions needed, thumbnails.\n\n(3) Monday partner product update report (Monday ~09:30 Europe/Malta)\nCreate a new partner-facing Google Doc 'Fast Track Product Update, <date>': released last 2 weeks + coming next 2 weeks, customer-facing Rewards / FT AI / CRM only, live from Linear read-only. No internal links, names, incident numbers or slipped dates; 'Released' / 'Coming soon' with expected dates and a dates-may-change note. Send Lis the link, a summary and judgement calls, even in a quiet week.",
+  "prompt": "Release & Pipeline Monitoring: three scheduled routines in Grok Bot. These prompts are condensed from the saved routines.\n\n(1) Monday feature pipeline refresh (Monday ~09:00 Europe/Malta)\nRefresh Lis's Feature Pipeline Tracker Page from Linear (read-only). Customer-facing scope: Rewards, Fast Track AI, CRM Experience, CRM Core, other product work; exclude SRE/QA/Cloud/tooling/design/internal ops. Edit the Page in place, update the freshness date, never invent data. Compare with last week: newly released, release notes, stage changes, moved target dates, new projects, items past target. Message Lis with released / moved or slipped / new, Linear links, partner flags; one line if nothing changed.\n\n(2) Monday Rewards doc & deck refresh (Monday ~09:15 Europe/Malta)\nRefresh the internal Rewards doc and the external Rewards deck from Linear, rolling window 2 weeks back / 2 forward. Linear read-only; never delete Drive files; edit in place; never invent. Internal doc keeps all internal detail plus a watch list for overdue items. External deck: only Released / Coming soon, partner-safe, 4-5 features per slide, overflow-checked. Message Lis with links, window changes, slips, decisions needed, thumbnails.\n\n(3) Monday partner product update report (Monday ~09:30 Europe/Malta)\nCreate a new partner-facing Google Doc 'Fast Track Product Update, <date>': released last 2 weeks + coming next 2 weeks, customer-facing Rewards / FT AI / CRM only, live from Linear read-only. No internal links, names, incident numbers or slipped dates; 'Released' / 'Coming soon' with expected dates and a dates-may-change note. Send Lis the link, a summary and judgement calls, even in a quiet week.",
   "links": [
    {
     "label": "Feature Pipeline Tracker",
