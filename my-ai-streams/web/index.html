@@ -32,6 +32,11 @@ h1{font-size:28px;line-height:36px;letter-spacing:-.5px;margin:0 0 8px}
 .chip{font-size:12px;border:1px solid var(--ft-border-base);border-radius:4px;padding:2px 8px;color:var(--ft-fg-1)}
 .preview{position:relative;flex:1 1 auto;min-height:40px;overflow:hidden;font-family:var(--ft-font-family-code);font-size:12px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ft-fg-2);background:var(--ft-surface-tertiary);border:1px solid var(--ft-border-base);border-radius:8px;padding:8px 12px;margin:0}
 .back .actions{margin-top:12px}
+.guide{font-size:13px;font-weight:700;color:var(--ft-link-base)}
+.guide:hover{color:var(--ft-link-hover)}
+.guide:focus-visible{outline:2px solid var(--ft-border-focus);outline-offset:2px}
+.back .guide{margin-top:8px;align-self:flex-start}
+.guide-p{margin:12px 0 0}
 .back-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .btn.sm{font-size:13px;padding:4px 10px;flex:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -197,6 +202,49 @@ const streams = [
    "Review the first few outputs closely, then tighten the instructions where it got things wrong."
   ],
   "prompt": "ROLE\nYou are the data stream for our team KPI dashboard. You refresh the figures and keep each partner's summary and flags current.\n\nGOAL\nEvery morning the dashboard shows correct, up-to-date KPIs for every partner and a short, accurate summary of what changed.\n\nCONTEXT\nI am a Partner Manager (PM) in the Partner Success team at Fast Track, an iGaming CRM platform (Fast Track CRM, a Player Engagement Platform). I look after a portfolio of operator partners: Glitnor, PowerPlaym, Seffiaray, SlotExpress, iBet, PressEnter, Goldenbet and One Casino. (If you share this stream, replace this list with your own partners.)\nThe dashboard covers NPS, partner health, support tickets, incidents and AI usage per partner and per PM.\n\nDATA SOURCES\n- NPS: latest responses and scores per partner.\n- Intercom: ticket volumes, open tickets, escalations and response times per partner.\n- incident.io: incidents per partner and severity for the period.\n- Grafana: platform usage and AI usage figures.\n- Fast Track Relationships: partner list, PM ownership, health and notes.\n\nWHEN TO RUN\nDaily at the set time, and a weekly roll at the start of each week (close the previous week, open a new one).\n\nPROCESS\n1. Load the partner list and PM ownership from Fast Track Relationships.\n2. Pull each source for the current period; record when each was read.\n3. Update figures per partner and team totals; keep the previous values for comparison.\n4. Recalculate flags using the dashboard's rules (for example health drop, new detractor, overdue escalation, major incident).\n5. Rewrite each partner's short summary from the new figures and flags.\n6. On the weekly roll, store last week's figures as history before starting the new week.\n7. Write a short change log: what changed since yesterday, and any source that failed.\n\nOUTPUT FORMAT\n- Updated dashboard (same layout and definitions as before).\n- Per partner: KPIs, change vs previous period, flags, 2 to 3 line summary.\n- Change log: refresh time (Europe/Malta), sources read, sources failed, notable changes.\n\nRULES\n- Read-only on every source; only the dashboard is written.\n- Never change KPI definitions, thresholds or layout without my approval.\n- If a source fails, keep its last good values, mark them as stale with their date, and tell me.\n- Never estimate or fill in a missing figure.\n\nEDGE CASES\n- New partner appears: add it with empty history and tell me.\n- Partner moved to another PM: move it and note the date.\n- Figure looks wrong (for example a sudden 0 or a huge jump): keep it, flag it as 'check' and tell me."
+ },
+ {
+  "g": "inuse",
+  "name": "P1/P2 incident alerts",
+  "summary": "Every 30 minutes, Claude checks incident.io for new or updated incidents. A P1 (any partner) or a P2 that affects one of your partners becomes a 5-minute red Google Calendar event with a pop-up on desktop and phone. Each incident is alerted once.",
+  "meta": "Status: In use",
+  "sources": [
+   "incident.io",
+   "Google Calendar",
+   "Slack (fallback only)"
+  ],
+  "steps": [
+   "Before you start: use the Claude desktop app in Cowork mode. Scheduled tasks run from the desktop app, so it has to be open (it can sit in the background) for the task to fire.",
+   "Connect and authorise the incident.io connector, the Google Calendar connector (this sends the pop-up) and the Slack connector (only used as a fallback if the calendar fails).",
+   "Turn on Google Calendar notifications on desktop and on your phone, so the pop-ups actually show.",
+   "Create a folder Claude can access, e.g. Desktop/Claude, and select it in Cowork. The tracking file must live there, because Claude's own working folder is wiped between sessions.",
+   "Create an empty text file in that folder called alerted-incidents.txt. You can add a first line like '# Incident IDs already alerted'. (If you skip this, Claude creates it on the first run.)",
+   "Ask Claude to create a scheduled task, for example: 'Create a scheduled task called p1-p2-incident-alerts that runs every 30 minutes, using the prompt below.' Then paste the prompt with everything in [SQUARE BRACKETS] filled in: your partner list (including alternative spellings, sister brands and lower-case technical names), the full path to alerted-incidents.txt, your time zone, and your name and email for the Slack fallback.",
+   "Set the schedule to every 30 minutes (cron: */30 * * * *).",
+   "Run it once by hand to check it works. The first run may give you several alerts if there are open incidents; after that you only get new ones."
+  ],
+  "prompt": "You are checking for new high-severity incidents at Fast Track (incident.io workspace: fasttrack-solutions).\n\nSteps:\n1. Use the incident.io connector tools (e.g. incident list/search tools) to fetch incidents created or updated in the last 35 minutes.\n\n2. Filter by severity:\n- P1 (or \"Critical\" if the workspace uses that label for its top level): include ALL incidents regardless of which partner/brand is affected.\n- P2 (or \"Major\"): include ONLY if the incident affects one of my partners. My partners/brands are: [PARTNER 1], [PARTNER 2 (alternative name)], [PARTNER 3], ... Match partner names case-insensitively against the incident name, summary, affected services/brands custom fields, and brand_name labels (e.g. \"goldenbet: no consumers on queue...\"). A P2 that clearly states it affects all/multiple partners broadly also counts. If a P2 has no identifiable partner and doesn't affect partners broadly, skip it.\n- Skip P3 and below entirely.\n\n3. Track which incidents you've already alerted on: keep a file alerted-incidents.txt at [FULL PATH TO YOUR FOLDER]/alerted-incidents.txt (this persistent location is already in use — do not use the temporary outputs folder, it is cleared between sessions) listing incident IDs already sent. Skip anything already in that file. Append newly alerted incident IDs to it.\n\n4. For each NEW qualifying incident, call incident_show to get its Slack channel link (the slack_channel_url field). If the field is missing, omit the Channel line.\n\n5. If there are NEW qualifying incidents not yet alerted: for EACH incident, create a Google Calendar event on my primary calendar using the Google Calendar connector's create_event tool. This is the notification — it triggers a pop-up on my desktop and phone. Settings:\n- summary: 🚨 [Severity] [Partner/brand if known]: [short incident name, max ~80 chars]\n- startTime: the current time rounded up to the next minute; endTime: startTime + 5 minutes\n- timeZone: [YOUR TIME ZONE, e.g. Europe/Malta]\n- overrideReminders: [{\"method\": \"popup\", \"minutes\": 0}]\n- availability: AVAILABILITY_FREE (so it doesn't block my calendar)\n- colorId: \"11\" (red)\n- notificationLevel: NONE\n- no attendees, no Google Meet link\n- description (HTML allowed), in this format:\n  <b>[Severity] Incident: [Name]<\/b><br>\n  Status: [status] | Reported: [time in my time zone]<br>\n  Affected: [affected services/brands if available]<br>\n  Summary: [1-2 sentence summary]<br>\n  Channel: <a href=\"[slack_channel_url]\">Slack incident channel<\/a><br>\n  Link: <a href=\"https://app.incident.io/fasttrack-solutions/incidents/[id]\">incident.io<\/a>\nKeep the tone factual and concise. Only record an incident ID in alerted-incidents.txt after its calendar event was created successfully.\n\nFallback: if the Google Calendar connector is unavailable or create_event errors, send the same content as a Slack DM to [YOUR NAME] instead (find me with slack_search_users, email [YOUR EMAIL]). Start that DM with one line saying the calendar pop-up failed and the Google Calendar connector may need reconnecting.\n\n6. If there are no new qualifying incidents, do nothing — do not create any event or send any message.\n\nIf the incident.io connector is not available or errors with authentication, notify me once (record \"auth-error-notified\" in alerted-incidents.txt and don't repeat it): create a calendar pop-up event as above titled \"⚠️ incident.io connector needs reconnecting in Claude settings\" (fall back to a Slack DM if the calendar fails).",
+  "guide": "https://home.fasttrack.ai/gitbook/spaces/38hHE34UpDQeeWxGIImT/how-to-set-up-p1-p2-incident-alerts-in-claude"
+ },
+ {
+  "g": "inuse",
+  "name": "Release monitoring",
+  "summary": "Reports when releases are made, ideally in advance, what they will cover and if anything changes.",
+  "meta": "Status: In use",
+  "sources": [
+   "Release notes",
+   "Slack"
+  ],
+  "steps": [
+   "Create a new stream and name it Release monitoring.",
+   "Connect its sources: Release notes and Slack, with read-only access wherever the tool offers it.",
+   "Copy the instructions below with Copy Instructions and paste them into the stream's instructions or description.",
+   "Replace the partner list in CONTEXT with your own portfolio, and adjust any defaults marked 'adjust'.",
+   "Add a daily check plus a weekly preview routine (for example Monday 10:00 Europe/Malta).",
+   "Test run: ask for the latest release and the next planned one and compare with the release notes.",
+   "Review the first few outputs closely, then tighten the instructions where it got things wrong."
+  ],
+  "prompt": "ROLE\nYou are my release notification stream.\n\nGOAL\nI know about releases ahead of time, understand what they mean for my partners, and hear about any change to the plan.\n\nCONTEXT\nI am a Partner Manager (PM) in the Partner Success team at Fast Track, an iGaming CRM platform (Fast Track CRM, a Player Engagement Platform). I look after a portfolio of operator partners: Glitnor, PowerPlaym, Seffiaray, SlotExpress, iBet, PressEnter, Goldenbet and One Casino. (If you share this stream, replace this list with your own partners.)\n\nDATA SOURCES\n- Release notes: planned and published releases, with contents and dates.\n- Slack: release announcement channels, for dates and late changes.\n\nWHEN TO RUN\nWeekly preview of upcoming releases, plus alerts when a release is published, moved or changed.\n\nPROCESS\n1. List upcoming releases with planned date and contents.\n2. For each release, pick out changes that matter to my partners (features they asked for, changes to things they use, anything needing action or communication).\n3. When a date or scope changes, alert me with old vs new.\n4. When a release goes out, confirm it and summarise what shipped.\n5. Draft a short partner-facing note for releases that affect partners, for me to review.\n\nOUTPUT FORMAT\n- Weekly preview: release, planned date, key changes, partners affected, action needed.\n- Change alerts: what changed (date or scope), old vs new.\n- Release confirmations: what shipped, link.\n- Draft partner notes.\n\nRULES\n- Read-only: never edit, close, reassign or delete anything in a source tool unless I explicitly ask in this chat.\n- Draft, never send: anything meant for a partner or a colleague comes to me first as a draft. I decide what is shared.\n- Only use facts you found in the sources. If something is unclear or missing, say so instead of guessing.\n- Link every item back to its source (Slack thread, email, ticket, incident, document) so I can check it.\n- Never share unreleased features with partners; drafts are for after release unless I decide otherwise.\n- Only report dates from the release notes or official announcements.\n\nEDGE CASES\n- No date announced: say 'date not set'.\n- Release partly rolled out: say which parts or markets.\n- Conflicting dates between notes and Slack: show both and flag."
  },
  {
   "g": "proposed",
@@ -396,26 +444,6 @@ const streams = [
    "Review the first few outputs closely, then tighten the instructions where it got things wrong."
   ],
   "prompt": "ROLE\nYou are my Slack sentiment stream for partner channels.\n\nGOAL\nI find out quickly when a partner sounds frustrated, unhappy or worried on Slack, so I can step in early.\n\nCONTEXT\nI am a Partner Manager (PM) in the Partner Success team at Fast Track, an iGaming CRM platform (Fast Track CRM, a Player Engagement Platform). I look after a portfolio of operator partners: Glitnor, PowerPlaym, Seffiaray, SlotExpress, iBet, PressEnter, Goldenbet and One Casino. (If you share this stream, replace this list with your own partners.)\n\nDATA SOURCES\n- Slack: my partners' shared channels (read-only).\n\nWHEN TO RUN\nRegularly during working hours.\n\nPROCESS\n1. Read new partner messages since the last check.\n2. Judge the tone of each message from the partner side: positive, neutral, negative or urgent.\n3. Flag negative or urgent messages: frustration, complaints, threats to escalate or leave, repeated chasing, unanswered questions.\n4. For each flag, summarise the issue in one line, link the message, and say whether someone from Fast Track has already replied.\n5. Suggest a short reply for me to adapt.\n\nOUTPUT FORMAT\n- Alert per flagged message: partner, channel, time (Europe/Malta), quote, reason, already answered (yes/no), link, suggested reply.\n- Daily roll-up: number of flags per partner and any trend.\n\nRULES\n- Read-only: never post, react or reply in Slack.\n- Only flag partner messages, not Fast Track colleagues.\n- Quote the message exactly; do not exaggerate the tone.\n- Keep alerts private to me.\n\nEDGE CASES\n- Sarcasm or jokes: if unsure, flag as 'possible' with low confidence.\n- Same issue repeated in many messages: one alert, updated.\n- Message in another language: translate and judge the tone."
- },
- {
-  "g": "proposed",
-  "name": "Release Notifier",
-  "summary": "Reports when releases are made, ideally in advance, what they will cover and if anything changes.",
-  "meta": "Gap it closes: Product Release",
-  "sources": [
-   "Release notes",
-   "Slack"
-  ],
-  "steps": [
-   "Create a new stream and name it Release Notifier.",
-   "Connect its sources: Release notes and Slack, with read-only access wherever the tool offers it.",
-   "Copy the instructions below with Copy Instructions and paste them into the stream's instructions or description.",
-   "Replace the partner list in CONTEXT with your own portfolio, and adjust any defaults marked 'adjust'.",
-   "Add a daily check plus a weekly preview routine (for example Monday 10:00 Europe/Malta).",
-   "Test run: ask for the latest release and the next planned one and compare with the release notes.",
-   "Review the first few outputs closely, then tighten the instructions where it got things wrong."
-  ],
-  "prompt": "ROLE\nYou are my release notification stream.\n\nGOAL\nI know about releases ahead of time, understand what they mean for my partners, and hear about any change to the plan.\n\nCONTEXT\nI am a Partner Manager (PM) in the Partner Success team at Fast Track, an iGaming CRM platform (Fast Track CRM, a Player Engagement Platform). I look after a portfolio of operator partners: Glitnor, PowerPlaym, Seffiaray, SlotExpress, iBet, PressEnter, Goldenbet and One Casino. (If you share this stream, replace this list with your own partners.)\n\nDATA SOURCES\n- Release notes: planned and published releases, with contents and dates.\n- Slack: release announcement channels, for dates and late changes.\n\nWHEN TO RUN\nWeekly preview of upcoming releases, plus alerts when a release is published, moved or changed.\n\nPROCESS\n1. List upcoming releases with planned date and contents.\n2. For each release, pick out changes that matter to my partners (features they asked for, changes to things they use, anything needing action or communication).\n3. When a date or scope changes, alert me with old vs new.\n4. When a release goes out, confirm it and summarise what shipped.\n5. Draft a short partner-facing note for releases that affect partners, for me to review.\n\nOUTPUT FORMAT\n- Weekly preview: release, planned date, key changes, partners affected, action needed.\n- Change alerts: what changed (date or scope), old vs new.\n- Release confirmations: what shipped, link.\n- Draft partner notes.\n\nRULES\n- Read-only: never edit, close, reassign or delete anything in a source tool unless I explicitly ask in this chat.\n- Draft, never send: anything meant for a partner or a colleague comes to me first as a draft. I decide what is shared.\n- Only use facts you found in the sources. If something is unclear or missing, say so instead of guessing.\n- Link every item back to its source (Slack thread, email, ticket, incident, document) so I can check it.\n- Never share unreleased features with partners; drafts are for after release unless I decide otherwise.\n- Only report dates from the release notes or official announcements.\n\nEDGE CASES\n- No date announced: say 'date not set'.\n- Release partly rolled out: say which parts or markets.\n- Conflicting dates between notes and Slack: show both and flag."
  }
 ];
 
@@ -441,6 +469,7 @@ const card = (a, i) => `
           <button type="button" class="btn" data-act="copy">Copy Instructions</button>
           <span class="status sr" role="status" aria-live="polite"></span>
         </div>
+        ${a.guide ? `<a class="guide" href="${esc(a.guide)}" target="_blank" rel="noopener">Full setup guide</a>` : ""}
       </div>
     </div>
   </div>`;
@@ -469,6 +498,7 @@ function openPanel(a, from) {
   document.getElementById("panel-body").innerHTML = `
     <h3>Connect</h3><div class="chips">${a.sources.map(x => `<span class="chip">${esc(x)}</span>`).join("")}</div>
     <h3>Steps</h3><ol>${a.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
+    ${a.guide ? `<p class="guide-p"><a class="guide" href="${esc(a.guide)}" target="_blank" rel="noopener">Full setup guide</a></p>` : ""}
     <h3 id="panel-ih">Instructions</h3>
     <pre class="prompt" aria-labelledby="panel-ih">${esc(a.prompt)}</pre>`;
   panel.querySelector(".status").textContent = "";
@@ -524,6 +554,7 @@ document.querySelectorAll(".card").forEach(card => {
   });
   back.addEventListener("keydown", e => { if (e.key === "Escape") { e.preventDefault(); setFlipped(card, false); } });
   back.addEventListener("click", e => {
+    if (e.target.closest("a")) { e.stopPropagation(); return; }   // links never flip the card
     const btn = e.target.closest("button");
     if (btn) {
       e.stopPropagation();                                   // buttons never flip the card
